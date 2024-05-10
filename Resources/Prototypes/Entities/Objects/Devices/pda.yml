@@ -795,8 +795,8 @@
 - type: entity
   parent: BasePDA
   id: SyndiPDA
-  name: syndicate PDA
-  description: Ok, time to be a productive member of- oh cool I'm a bad guy time to kill people!
+  name: terragov PDA
+  description: Sarge. There's only soup!
   components:
   - type: Pda
     id: SyndicateIDCard
@@ -1114,8 +1114,8 @@
 - type: entity
   parent: BaseMedicalPDA
   id: SyndiAgentPDA
-  name: syndicate agent PDA
-  description: For those days when healing normal syndicates aren't enough, try healing nuclear operatives instead!
+  name: terragov medic PDA
+  description: THEN GET OUT OF THE SOUP ISLE!!
   components:
   - type: Pda
     id: SyndicateIDCard

@@ -48,6 +48,8 @@ namespace Content.Server.Palmtree.Surgery.SurgerySystem
     {
         // These procedures can be prototypes later, for now I'll hardcode them because I have no idea how to do it otherwise.
         // Remind me to try and make them prototypes later, please!
+        /*
+         * We're no longer doing step-based procedures, on the future this is going to be changed for wound checks.
         Dictionary<string, string[]> procedures = new Dictionary<string, string[]>
         {
             {"TendWounds", new string[]{"scalpel"}},
@@ -58,6 +60,7 @@ namespace Content.Server.Palmtree.Surgery.SurgerySystem
             {"InsertAugment", new string[]{"scalpel", "retractor", "saw"}}, // This procedure is used for augments and implants
             {"RemoveAugment", new string[]{"scalpel", "retractor", "saw", "drill"}} // This procedure removes a person's augments, breaking them, synth organs cannot be removed
         };
+        */
 
         [Dependency] private readonly PopupSystem _popupSystem = default!;
         [Dependency] private readonly DamageableSystem _damageableSystem = default!;
@@ -114,7 +117,7 @@ namespace Content.Server.Palmtree.Surgery.SurgerySystem
                         _popupSystem.PopupEntity("You retract the patient's skin!", args.User, PopupType.Small);
                         break;
                     case "saw":
-                        if (patient.procedures.SequenceEqual(procedures["SawBones"]))
+                        if (patient.procedures.Contains("retractor"))
                         {
                             _popupSystem.PopupEntity("You saw the patient's bones!", args.User, PopupType.Small);
                         }
@@ -129,7 +132,7 @@ namespace Content.Server.Palmtree.Surgery.SurgerySystem
                         repeatableProcedure = true; // You can just burn people over and over with a cautery, yeah.
                         break;
                     case "brainlink":
-                        if (patient.procedures.SequenceEqual(procedures["BrainTransfer"]))
+                        if (patient.procedures.Contains("saw"))
                         {
                             bool targetHasMind = _sharedmind.TryGetMind((EntityUid) args.Target, out var targetMindId, out var targetMind);
                             if (targetHasMind)
@@ -145,7 +148,7 @@ namespace Content.Server.Palmtree.Surgery.SurgerySystem
                         }
                         break;
                     case "phantomlink": // Upgraded version of the ghost shell, can only be admin spawned
-                        if (patient.procedures.SequenceEqual(procedures["BrainTransfer"]))
+                        if (patient.procedures.Contains("saw"))
                         {
                             bool targetHasMind = _sharedmind.TryGetMind((EntityUid) args.Target, out var targetMindId, out var targetMind);
                             bool deviceHasMind = _sharedmind.TryGetMind(uid, out var deviceMindId, out var deviceMind);
@@ -200,7 +203,7 @@ namespace Content.Server.Palmtree.Surgery.SurgerySystem
                         break;
                     case "Implant": // Shitcode galore
                     {
-                        if (patient.procedures.SequenceEqual(procedures["InsertAugment"]))
+                        if (patient.procedures.Contains("saw"))
                         {
                             switch(tool.subKind)
                             {
@@ -270,7 +273,7 @@ namespace Content.Server.Palmtree.Surgery.SurgerySystem
             {
                 return;
             }
-            if (!TryComp(args.Target, out PPatientComponent? patient) && patientHasState)
+            if (!TryComp(args.Target, out PPatientComponent? patient) || !patientHasState) // Fixes a problem with allowing people to operate on walls
             {
                 return;
             }

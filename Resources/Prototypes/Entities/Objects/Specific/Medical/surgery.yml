@@ -8,9 +8,10 @@
   - type: Sprite
   - type: StaticPrice
     price: 20
-  - type: Tag
-    tags:
-    - SurgeryTool
+#  - type: Tag
+#    tags:
+#    - SurgeryTool
+  - type: SurgeryTool
 
 # Cautery
 
@@ -20,17 +21,6 @@
   parent: BaseToolSurgery
   description: A surgical tool used to cauterize open wounds.
   components:
-  - type: PSurgeryTool # Palmtree change - I don't need to explain this one, do I?
-    useDelay: 1
-    kind: cautery
-    audioStart:
-      path: "/Audio/Palmtree/Items/Medical/cautery1.ogg"
-    audioEnd:
-      path: "/Audio/Palmtree/Items/Medical/cautery2.ogg"
-    bleedAmountOnUse: -15
-    damageOnUse:
-      types:
-        Heat: 1 # Burns!
   - type: Sprite
     sprite: Objects/Specific/Medical/Surgery/cautery.rsi
     state: cautery
@@ -43,6 +33,12 @@
         Heat: 5
     soundHit:
       path: /Audio/Effects/lightburn.ogg
+  - type: SurgeryTool
+    startSound:
+      path: /Audio/Medical/Surgery/cautery1.ogg
+    endSound:
+      path: /Audio/Medical/Surgery/cautery2.ogg
+  - type: Cautery
 
 # Drill
 
@@ -74,6 +70,10 @@
       path: /Audio/Items/drill_hit.ogg
   - type: StaticPrice
     price: 40
+  - type: SurgeryTool
+    startSound:
+      path: /Audio/Medical/Surgery/saw.ogg
+  - type: SurgicalDrill
 
 # Scalpel
 
@@ -83,15 +83,6 @@
   parent: BaseToolSurgery
   description: A surgical tool used to make incisions into flesh.
   components:
-  - type: PSurgeryTool # Palmtree change - I don't need to explain this one, do I?
-    kind: scalpel
-    audioStart:
-      path: "/Audio/Palmtree/Items/Medical/scalpel1.ogg"
-    audioEnd:
-      path: "/Audio/Palmtree/Items/Medical/scalpel2.ogg"
-    damageOnUse:
-      types:
-        Slash: 15 # Chop chop
   - type: Sharp
     butcherDelayModifier: 1.5 # Butchering with a scalpel, regardless of the type, will take 50% longer
   - type: Utensil
@@ -118,6 +109,13 @@
     angle: 20
     soundHit:
       path: /Audio/Weapons/bladeslice.ogg
+  - type: SurgeryTool
+    startSound:
+      path: /Audio/Medical/Surgery/scalpel1.ogg
+    endSound:
+      path: /Audio/Medical/Surgery/scalpel2.ogg
+  - type: Scalpel
+
 
 - type: entity
   name: shiv
@@ -169,52 +167,65 @@
   parent: BaseToolSurgery
   description: A surgical tool used to hold open incisions.
   components:
-  - type: PSurgeryTool # Palmtree change - I don't need to explain this one, do I?
-    kind: retractor
-    audioStart:
-      path: "/Audio/Palmtree/Items/Medical/retractor1.ogg"
-    audioEnd:
-      path: "/Audio/Palmtree/Items/Medical/retractor2.ogg"
-    damageOnUse: # Ow it pinches
-      types:
-        Blunt: 5
   - type: Sprite
     sprite: Objects/Specific/Medical/Surgery/scissors.rsi
     state: retractor
   - type: Item
     sprite: Objects/Specific/Medical/Surgery/scissors.rsi
     storedRotation: 90
+  - type: SurgeryTool
+    startSound:
+      path: /Audio/Medical/Surgery/retractor1.ogg
+    endSound:
+      path: /Audio/Medical/Surgery/retractor2.ogg
+  - type: Retractor
 
 - type: entity
   name: hemostat
   id: Hemostat
-  parent: Retractor
+  parent: BaseToolSurgery
   description: A surgical tool used to compress blood vessels to prevent bleeding.
   components:
-  - type: PSurgeryTool # Palmtree change - I don't need to explain this one, do I?
-    useDelay: 1
-    kind: hemostat # Even if the hemostat is in the same category as a retractor, it is used for different things.
-    audioStart:
-      path: "/Audio/Palmtree/Items/Medical/hemostat1.ogg"
-    audioEnd:
-      path: "/Audio/Palmtree/Items/Medical/hemostat1.ogg"
-    damageOnUse: # Ow it pinches
-      groups:
-        Brute: -9
-        Burn: -12
-    bleedAmountOnUse: -15
   - type: Sprite
+    sprite: Objects/Specific/Medical/Surgery/scissors.rsi
     state: hemostat
   - type: Item
     heldPrefix: hemostat
+    sprite: Objects/Specific/Medical/Surgery/scissors.rsi
     storedRotation: 90
+  - type: SurgeryTool
+    startSound:
+      path: /Audio/Medical/Surgery/retractor1.ogg
+    endSound:
+      path: /Audio/Medical/Surgery/hemostat1.ogg
+  - type: Hemostat
 
-  # - type: entity
-  #   name: bone setter
-  #   id: BoneSetter
-  #   parent: Retractor
-  #   description: A surgical tool used for setting bones.
-  #   components:
+# Bone setter
+- type: entity
+  parent: BaseToolSurgery
+  id: Bonesetter
+  name: bone setter
+  description: Used for setting bones back into place.
+  components:
+  - type: Sprite
+    sprite: Objects/Specific/Medical/Surgery/bonesetter.rsi
+    state: bonesetter
+  - type: Item
+    sprite: Objects/Specific/Medical/Surgery/bonesetter.rsi
+  - type: BoneSetter
+
+# Bone Gel
+- type: entity
+  parent: BaseToolSurgery
+  id: BoneGel
+  name: bottle of bone gel
+  description: A container for bone gel that often needs to be refilled from a specialized machine.
+  components:
+  - type: Sprite
+    sprite: Objects/Specific/Medical/Surgery/bone_gel.rsi
+    state: bone-gel
+  - type: BoneGel
+
 # Saws
 
 - type: entity
@@ -223,15 +234,6 @@
   parent: BaseToolSurgery
   description: For cutting wood and other objects to pieces. Or sawing bones, in case of emergency.
   components:
-  - type: PSurgeryTool # Palmtree change - I don't need to explain this one, do I?
-    audioStart:
-      path: "/Audio/Palmtree/Items/Medical/scalpel1.ogg"
-    audioEnd:
-      path: "/Audio/Palmtree/Items/Medical/scalpel2.ogg"
-    kind: saw
-    damageOnUse:
-      types:
-        Blunt: 30 # Having your bones affected gotta hurt a lot
   - type: Sharp
   - type: Utensil
     types:
@@ -258,6 +260,7 @@
     heavyStaminaCost: 20
     maxTargets: 8
     angle: 20
+  - type: BoneSaw
 # --No melee for regular saw because have you ever seen someone use a band saw as a weapon? It's dumb.--
 # No, I'm going to saw through your bones.
 
@@ -289,6 +292,7 @@
     qualities:
       - Sawing
     speed: 0.5
+  - type: BoneSaw
 
 - type: entity
   name: circular saw
@@ -296,11 +300,6 @@
   parent: Saw
   description: For heavy duty cutting.
   components:
-  - type: PSurgeryTool
-    audioStart:
-      path: "/Audio/Palmtree/Items/Medical/saw1.ogg"
-    audioEnd:
-      path: "/Audio/Palmtree/Items/Medical/scalpel2.ogg"
   - type: Sprite
     state: electric
   - type: Item
@@ -325,6 +324,10 @@
     qualities:
       - Sawing
     speed: 1.5
+  - type: SurgeryTool
+    startSound:
+      path: /Audio/Medical/Surgery/saw.ogg
+  - type: BoneSaw
 
 - type: entity
   name: advanced circular saw
@@ -356,3 +359,54 @@
     qualities:
       - Sawing
     speed: 2.0
+  - type: BoneSaw
+
+# ORGANS
+
+- type: entity
+  parent: LeftArmHuman
+  id: BioSynthLeftArm
+  name: bio-synthetic left arm
+  description: This left arm can be transplanted into any living organism and it will adapt to its recipient.
+
+- type: entity
+  parent: RightArmHuman
+  id: BioSynthRightArm
+  name: bio-synthetic right arm
+  description: This right arm can be transplanted into any living organism and it will adapt to its recipient.
+
+- type: entity
+  parent: LeftHandHuman
+  id: BioSynthLeftHand
+  name: bio-synthetic left hand
+  description: This left hand can be transplanted into any living organism and it will adapt to its recipient.
+
+- type: entity
+  parent: RightHandHuman
+  id: BioSynthRightHand
+  name: bio-synthetic right hand
+  description: This right hand can be transplanted into any living organism and it will adapt to its recipient.
+
+- type: entity
+  parent: LeftLegHuman
+  id: BioSynthLeftLeg
+  name: bio-synthetic left leg
+  description: This left leg can be transplanted into any living organism and it will adapt to its recipient.
+
+- type: entity
+  parent: RightLegHuman
+  id: BioSynthRightLeg
+  name: bio-synthetic right leg
+  description: This right leg can be transplanted into any living organism and it will adapt to its recipient.
+
+- type: entity
+  parent: LeftFootHuman
+  id: BioSynthLeftFoot
+  name: bio-synthetic left foot
+  description: This left foot can be transplanted into any living organism and it will adapt to its recipient.
+
+- type: entity
+  parent: RightFootHuman
+  id: BioSynthRightFoot
+  name: bio-synthetic right foot
+  description: This right foot can be transplanted into any living organism and it will adapt to its recipient.

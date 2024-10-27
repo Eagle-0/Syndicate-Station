@@ -7,7 +7,6 @@
   id: BaseMobSpecies
   abstract: true
   components:
-  - type: PPatient
   - type: Sprite
     layers:
     - map: [ "enum.HumanoidVisualLayers.Chest" ]
@@ -198,6 +197,8 @@
         type: HumanoidMarkingModifierBoundUserInterface
       - key: enum.StrippingUiKey.Key
         type: StrippableBoundUserInterface
+      - key: enum.SurgeryUIKey.Key
+        type: SurgeryBui
   - type: Puller
   - type: Speech
     speechSounds: Alto
@@ -227,6 +228,8 @@
     - CanPilot
     - FootstepSound
     - DoorBumpOpener
+  - type: Targeting
+  - type: SurgeryTarget
 
 - type: entity
   save: false
@@ -239,7 +242,6 @@
   id: BaseMobSpeciesOrganic
   abstract: true
   components:
-  - type: Targeting
   - type: Flashable
   - type: Barotrauma
     damage:

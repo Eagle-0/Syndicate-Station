@@ -73,3 +73,5 @@ mood-effect-EthanolBenefit =
     I feel so relaxed from drinking.
 mood-effect-SpaceDrugsBenefit =
     Woaaaah, such pretty colors maaaaan. It's like I can hear color and taste sound maaan.
+# Surgery
+mood-effect-SurgeryPain = The surgery hurts.

@@ -9,6 +9,8 @@ using Content.Shared.Audio;
 using Content.Shared.Damage;
 using Content.Shared.Database;
 using Content.Shared.DoAfter;
+using Content.Shared.Targeting;
+using Content.Shared.Body.Components;
 using Content.Shared.FixedPoint;
 using Content.Shared.Interaction;
 using Content.Shared.Interaction.Events;
@@ -19,6 +21,7 @@ using Content.Shared.Mobs.Systems;
 using Content.Shared.Stacks;
 using Robust.Shared.Audio.Systems;
 using Robust.Shared.Random;
+using System.Linq;
 
 namespace Content.Server.Medical;
 
@@ -27,6 +30,8 @@ public sealed class HealingSystem : EntitySystem
     [Dependency] private readonly SharedAudioSystem _audio = default!;
     [Dependency] private readonly IAdminLogManager _adminLogger = default!;
     [Dependency] private readonly DamageableSystem _damageable = default!;
+
+    [Dependency] private readonly BodySystem _bodySystem = default!;
     [Dependency] private readonly BloodstreamSystem _bloodstreamSystem = default!;
     [Dependency] private readonly SharedDoAfterSystem _doAfter = default!;
     [Dependency] private readonly IRobustRandom _random = default!;
@@ -84,6 +89,25 @@ public sealed class HealingSystem : EntitySystem
         if (healed == null && healing.BloodlossModifier != 0)
             return;
 
+        /* This is rather shitcodey. Problem is that right now damage is coupled to integrity.
+           If the body is fully healed, all of the checks on TryChangeDamage stop us from actually healing.
+           So in this case we add a special check to heal anyway if TryChangeDamage returns null.
+        */
+        if (healed != null && healed.GetTotal() == 0)
+        {
+            if (TryComp<TargetingComponent>(args.User, out var user)
+                && TryComp<TargetingComponent>(args.Target, out var target)
+                && healing.Damage.GetTotal() < 0)
+            {
+                // If they are valid, we check for body part presence,
+                // and integrity, then apply a direct integrity change.
+                var (type, symmetry) = _bodySystem.ConvertTargetBodyPart(user.Target);
+                if (_bodySystem.GetBodyChildrenOfType(args.Target.Value, type, symmetry: symmetry).FirstOrDefault() is { } bodyPart
+                    && bodyPart.Component.Integrity < 100)
+                    _bodySystem.TryChangeIntegrity(bodyPart, healing.Damage.GetTotal().Float(), false, target.Target, out var _);
+            }
+        }
+
         var total = healed?.GetTotal() ?? FixedPoint2.Zero;
 
         // Re-verify that we can heal the damage.
@@ -114,7 +138,7 @@ public sealed class HealingSystem : EntitySystem
         _audio.PlayPvs(healing.HealingEndSound, entity.Owner, AudioHelpers.WithVariation(0.125f, _random).WithVolume(-5f));
 
         // Logic to determine the whether or not to repeat the healing action
-        args.Repeat = (HasDamage(entity.Comp, healing) && !dontRepeat);
+        args.Repeat = HasDamage(entity.Comp, healing) && !dontRepeat || ArePartsDamaged(entity);
         if (!args.Repeat && !dontRepeat)
             _popupSystem.PopupEntity(Loc.GetString("medical-item-finished-using", ("item", args.Used)), entity.Owner, args.User);
         args.Handled = true;
@@ -132,6 +156,19 @@ public sealed class HealingSystem : EntitySystem
             }
         }
 
+        return false;
+    }
+
+    private bool ArePartsDamaged(EntityUid target)
+    {
+        if (!TryComp<BodyComponent>(target, out var body))
+            return false;
+
+        foreach (var part in _bodySystem.GetBodyChildren(target, body))
+        {
+            if (part.Component.Integrity < 100)
+                return true;
+        }
         return false;
     }
 
@@ -173,6 +210,7 @@ public sealed class HealingSystem : EntitySystem
 
         var anythingToDo =
             HasDamage(targetDamage, component) ||
+            ArePartsDamaged(target) ||
             component.ModifyBloodLevel > 0 // Special case if healing item can restore lost blood...
                 && TryComp<BloodstreamComponent>(target, out var bloodstream)
                 && _solutionContainerSystem.ResolveSolution(target, bloodstream.BloodSolutionName, ref bloodstream.BloodSolution, out var bloodSolution)

@@ -1,4 +1,6 @@
-﻿using Content.Shared.Body.Components;
+﻿using Content.Shared.Containers.ItemSlots;
+using Content.Shared.Medical.Surgery.Tools;
+using Content.Shared.Body.Components;
 using Content.Shared.Body.Systems;
 using Robust.Shared.Containers;
 using Robust.Shared.GameStates;
@@ -8,7 +10,7 @@ namespace Content.Shared.Body.Part;
 
 [RegisterComponent, NetworkedComponent, AutoGenerateComponentState]
 [Access(typeof(SharedBodySystem))]
-public sealed partial class BodyPartComponent : Component
+public sealed partial class BodyPartComponent : Component, ISurgeryToolComponent
 {
     // Need to set this on container changes as it may be several transform parents up the hierarchy.
     /// <summary>
@@ -37,6 +39,9 @@ public sealed partial class BodyPartComponent : Component
     [DataField, AutoNetworkedField]
     public BodyPartSymmetry Symmetry = BodyPartSymmetry.None;
 
+    [DataField]
+    public string ToolName { get; set; } = "A body part";
+
     /// <summary>
     /// Child body parts attached to this body part.
     /// </summary>
@@ -56,6 +61,12 @@ public sealed partial class BodyPartComponent : Component
     public float Integrity = 100f;
 
     /// <summary>
+    /// Whether this body part is enabled or not.
+    /// </summary>
+    [DataField, AutoNetworkedField]
+    public bool Enabled = true;
+
+    /// <summary>
     /// How long it takes to run another self heal tick on the body part.
     /// </summary>
     [DataField("healingTime")]
@@ -71,6 +82,12 @@ public sealed partial class BodyPartComponent : Component
     /// </summary>
     [DataField("selfHealingAmount")]
     public float SelfHealingAmount = 5;
+
+    [DataField]
+    public string ContainerName { get; set; } = "part_slot";
+
+    [DataField]
+    public ItemSlot ItemInsertionSlot = new();
 
     /// <summary>
     /// These are only for VV/Debug do not use these for gameplay/systems

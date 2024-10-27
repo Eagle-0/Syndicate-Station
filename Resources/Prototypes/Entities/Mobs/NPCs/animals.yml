@@ -1202,8 +1202,10 @@
   description: The genetic bipedal ancestor of... Uh... Something. Yeah, there's definitely something on the station that descended from whatever this is.
   abstract: true
   components:
-  - type: PPatient
   - type: CombatMode
+  #- type: SurgeryTarget
+  #  canOperate: false
+  #- type: Targeting
   - type: Inventory
     templateId: monkey
     speciesId: monkey
@@ -1229,6 +1231,8 @@
     interfaces:
     - key: enum.StrippingUiKey.Key
       type: StrippableBoundUserInterface
+    #- key: enum.SurgeryUIKey.Key
+    #  type: SurgeryBui
   - type: Sprite
     drawdepth: Mobs
     layers:
